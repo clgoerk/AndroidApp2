@@ -2,6 +2,7 @@ package com.trioscg.androidapp2
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -11,7 +12,41 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var adapter: ComicBookAdapter
     private val comicList = mutableListOf<ComicBook>()
-    private val ADD_EDIT_REQUEST = 1
+    private val addEditLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == RESULT_OK && result.data != null) {
+            val isDelete = result.data?.getBooleanExtra("isDelete", false) ?: false
+
+            if (isDelete) {
+                val index = result.data?.getIntExtra("index", -1) ?: -1
+                if (index >= 0 && index < comicList.size) {
+                    comicList.removeAt(index)  // Remove the comic from the list
+                    adapter.notifyItemRemoved(index)  // Update the RecyclerView
+                    ComicStorage.saveComics(this, comicList)  // Save the updated list
+                }
+                return@registerForActivityResult
+            }
+
+            val title = result.data?.getStringExtra("title") ?: return@registerForActivityResult
+            val issueNumber = result.data?.getStringExtra("issueNumber") ?: return@registerForActivityResult
+            val publisher = result.data?.getStringExtra("publisher") ?: return@registerForActivityResult
+            val year = result.data?.getStringExtra("year") ?: return@registerForActivityResult
+            val isEdit = result.data?.getBooleanExtra("isEdit", false) ?: false
+            val index = result.data?.getIntExtra("index", -1) ?: -1
+            val imageUri = result.data?.getStringExtra("imageUri")
+
+            val comic = ComicBook(title, issueNumber, publisher, year, imageUri)
+
+            if (isEdit && index >= 0) {
+                comicList[index] = comic  // Edit the existing comic
+                adapter.notifyItemChanged(index)  // Update the RecyclerView
+            } else {
+                comicList.add(comic)  // Add a new comic
+                adapter.notifyItemInserted(comicList.size - 1)  // Update the RecyclerView
+            }
+
+            ComicStorage.saveComics(this, comicList)  // Save the updated list
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,7 +70,8 @@ class MainActivity : AppCompatActivity() {
                 putExtra("index", index)
                 putExtra("imageUri", comic.imageUri)
             }
-            startActivityForResult(intent, ADD_EDIT_REQUEST)
+            // Launch the AddEditComicActivity using the ActivityResultLauncher
+            addEditLauncher.launch(intent)
         }
 
         // Set up RecyclerView
@@ -45,45 +81,8 @@ class MainActivity : AppCompatActivity() {
         // Floating Action Button to add new comic
         findViewById<FloatingActionButton>(R.id.fab_add).setOnClickListener {
             val intent = Intent(this, AddEditComicActivity::class.java)
-            startActivityForResult(intent, ADD_EDIT_REQUEST)
+            // Launch the AddEditComicActivity using the ActivityResultLauncher
+            addEditLauncher.launch(intent)
         }
     } // onCreate()
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == ADD_EDIT_REQUEST && resultCode == RESULT_OK && data != null) {
-            val isDelete = data.getBooleanExtra("isDelete", false)
-
-            if (isDelete) {
-                val index = data.getIntExtra("index", -1)
-                if (index >= 0 && index < comicList.size) {
-                    comicList.removeAt(index)  // Remove the comic from the list
-                    adapter.notifyItemRemoved(index)  // Update the RecyclerView
-                    ComicStorage.saveComics(this, comicList)  // Save the updated list
-                }
-                return
-            }
-
-            val title = data.getStringExtra("title") ?: return
-            val issueNumber = data.getStringExtra("issueNumber") ?: return
-            val publisher = data.getStringExtra("publisher") ?: return
-            val year = data.getStringExtra("year") ?: return
-            val isEdit = data.getBooleanExtra("isEdit", false)
-            val index = data.getIntExtra("index", -1)
-            val imageUri = data.getStringExtra("imageUri")
-
-            val comic = ComicBook(title, issueNumber, publisher, year, imageUri)
-
-            if (isEdit && index >= 0) {
-                comicList[index] = comic  // Edit the existing comic
-                adapter.notifyItemChanged(index)  // Update the RecyclerView
-            } else {
-                comicList.add(comic)  // Add a new comic
-                adapter.notifyItemInserted(comicList.size - 1)  // Update the RecyclerView
-            }
-
-            ComicStorage.saveComics(this, comicList)  // Save the updated list
-        }
-    } // onActivityResult()
 } // MainActivity

@@ -1,6 +1,5 @@
 package com.trioscg.androidapp2
 
-import android.app.Activity
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -8,6 +7,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import java.io.File
 
@@ -15,8 +15,44 @@ class AddEditComicActivity : AppCompatActivity() {
 
     private lateinit var imageView: ImageView
     private var savedImagePath: String? = null
-    private var selectedImageUri: Uri? = null
-    private val IMAGE_PICK_REQUEST = 1001
+
+    private val imagePickerLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data = result.data
+            val uri = data?.data
+            uri?.let {
+                try {
+                    // Open an input stream from the selected image URI
+                    val inputStream = contentResolver.openInputStream(it)
+
+                    // Generate a unique file name using the current timestamp for the image
+                    val fileName = "comic_${System.currentTimeMillis()}.jpg"
+                    val file = File(filesDir, fileName)
+
+                    // Create an output stream to write the image to the app's internal storage
+                    val outputStream = file.outputStream()
+
+                    // Copy the image data from the URI to the internal storage file
+                    inputStream?.copyTo(outputStream)
+
+                    // Close both input and output streams after copying the image data
+                    inputStream?.close()
+                    outputStream.close()
+
+                    // Save the absolute path of the saved image for later use
+                    savedImagePath = file.absolutePath
+
+                    // Display the saved image in the ImageView
+                    imageView.setImageURI(Uri.fromFile(file))
+                } catch (e: Exception) {
+                    // Log any errors that occur during the image saving process
+                    e.printStackTrace()
+                }
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +82,10 @@ class AddEditComicActivity : AppCompatActivity() {
             val existingImagePath = intent.getStringExtra("imageUri")
             if (!existingImagePath.isNullOrEmpty()) {
                 savedImagePath = existingImagePath
-                imageView.setImageURI(Uri.fromFile(File(savedImagePath)))
+                savedImagePath?.let { path ->
+                    val file = File(path)
+                    imageView.setImageURI(Uri.fromFile(file))
+                }
             }
 
             // Show Delete button when editing
@@ -79,7 +118,7 @@ class AddEditComicActivity : AppCompatActivity() {
             val intent = Intent(Intent.ACTION_PICK).apply {
                 type = "image/*"
             }
-            startActivityForResult(intent, IMAGE_PICK_REQUEST)
+            imagePickerLauncher.launch(intent)  // Launch the image picker using the new API
         }
 
         // Save comic action (add or edit)
@@ -103,42 +142,4 @@ class AddEditComicActivity : AppCompatActivity() {
             finish()
         }
     } // onCreate()
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        if (requestCode == IMAGE_PICK_REQUEST && resultCode == RESULT_OK) {
-            selectedImageUri = data?.data
-            selectedImageUri?.let { uri ->
-                try {
-                    //  Open an input stream from the selected image URI (from gallery)
-                    val inputStream = contentResolver.openInputStream(uri)
-
-                    //  Generate a unique file name using timestamp
-                    val fileName = "comic_${System.currentTimeMillis()}.jpg"
-
-                    //  Create a file in the app's internal storage directory (filesDir)
-                    val file = File(filesDir, fileName)
-
-                    //  Open an output stream to the internal file
-                    val outputStream = file.outputStream()
-
-                    //  Copy the image data from the gallery to internal storage
-                    inputStream?.copyTo(outputStream)
-
-                    //  Close both input and output streams
-                    inputStream?.close()
-                    outputStream.close()
-
-                    //  Save the local path of the stored image for later use (e.g. preview or saving to comic)
-                    savedImagePath = file.absolutePath
-
-                    //  Show a preview of the saved image in the ImageView
-                    imageView.setImageURI(Uri.fromFile(file))
-                } catch (e: Exception) {
-                    e.printStackTrace()  // Log any errors that occur during image saving
-                }
-            }
-        }
-    } // onActivityResult()
 } // AddEditComicActivity
