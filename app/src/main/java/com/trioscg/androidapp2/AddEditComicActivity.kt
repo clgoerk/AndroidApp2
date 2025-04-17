@@ -58,6 +58,14 @@ class AddEditComicActivity : AppCompatActivity() {
 
         // Delete comic action (for editing)
         deleteButton.setOnClickListener {
+            // Delete image file if it exists
+            savedImagePath?.let {
+                val imageFile = File(it)
+                if (imageFile.exists()) {
+                    imageFile.delete()  // Remove the image from internal storage
+                }
+            }
+
             val resultIntent = Intent().apply {
                 putExtra("isDelete", true)  // Mark as delete action
                 putExtra("index", editIndex)  // Pass the index of the comic to delete
@@ -103,22 +111,32 @@ class AddEditComicActivity : AppCompatActivity() {
             selectedImageUri = data?.data
             selectedImageUri?.let { uri ->
                 try {
-                    // Copy selected image to internal storage
+                    //  Open an input stream from the selected image URI (from gallery)
                     val inputStream = contentResolver.openInputStream(uri)
+
+                    //  Generate a unique file name using timestamp
                     val fileName = "comic_${System.currentTimeMillis()}.jpg"
+
+                    //  Create a file in the app's internal storage directory (filesDir)
                     val file = File(filesDir, fileName)
+
+                    //  Open an output stream to the internal file
                     val outputStream = file.outputStream()
+
+                    //  Copy the image data from the gallery to internal storage
                     inputStream?.copyTo(outputStream)
+
+                    //  Close both input and output streams
                     inputStream?.close()
                     outputStream.close()
 
-                    // Save the local path to return it
+                    //  Save the local path of the stored image for later use (e.g. preview or saving to comic)
                     savedImagePath = file.absolutePath
 
-                    // Preview the saved image
+                    //  Show a preview of the saved image in the ImageView
                     imageView.setImageURI(Uri.fromFile(file))
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    e.printStackTrace()  // Log any errors that occur during image saving
                 }
             }
         }
