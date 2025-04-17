@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/dark_grey"
+    android:paddingTop="50dp">
+
+    <LinearLayout
+        style="?android:attr/buttonBarButtonStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        tools:ignore="DuplicateSpeakableTextCheck">
+
+        <!-- Comic Image -->
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="240dp"
+            android:layout_height="320dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/issue_number"
+            android:scaleType="centerCrop"
+            android:src="@drawable/baseline_image_24" />
+
+        <!-- Title -->
+        <EditText
+            android:id="@+id/input_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/edit_text_background"
+            android:hint="@string/comic_title"
+            android:padding="12dp"
+            tools:ignore="Autofill,TextContrastCheck,TextFields,VisualLintTextFieldSize" />
+
+        <!-- Issue Number -->
+        <EditText
+            android:id="@+id/input_issue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/edit_text_background"
+            android:hint="@string/issue_number"
+            android:padding="12dp"
+            tools:ignore="Autofill,TextContrastCheck,TextFields,VisualLintTextFieldSize" />
+
+        <!-- Publisher -->
+        <EditText
+            android:id="@+id/input_publisher"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/edit_text_background"
+            android:hint="@string/publisher"
+            android:padding="12dp"
+            tools:ignore="Autofill,TextContrastCheck,TextFields,VisualLintTextFieldSize" />
+
+        <!-- Year -->
+        <EditText
+            android:id="@+id/input_year"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/edit_text_background"
+            android:hint="Year"
+            android:padding="12dp"
+            tools:ignore="Autofill,TextContrastCheck,TouchTargetSizeCheck,VisualLintTextFieldSize" />
+
+        <!-- Save / Cancel / Delete Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <!-- Save Button -->
+            <Button
+                android:id="@+id/button_save"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/blue"
+                android:text="@string/save"
+                tools:ignore="ButtonStyle,VisualLintButtonSize" />
+
+            <!-- Cancel Button -->
+            <Button
+                android:id="@+id/button_cancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:backgroundTint="@color/green"
+                android:textColor="@color/dark_grey"
+                android:text="@string/cancel"
+                tools:ignore="ButtonStyle,TextContrastCheck,VisualLintButtonSize" />
+
+            <!-- Delete Button -->
+            <Button
+                android:id="@+id/button_delete"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:backgroundTint="@color/red"
+                android:text="@string/delete"
+                android:visibility="gone"
+                tools:ignore="ButtonStyle" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

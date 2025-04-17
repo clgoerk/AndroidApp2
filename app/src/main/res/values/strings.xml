@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">AndroidApp2</string>
+    <string name="my_comic_collection">My Comic Collection</string>
+    <string name="comic_list">Comic List</string>
+    <string name="add_comic">Add Comic</string>
+    <string name="comic_cover">Comic Cover</string>
+    <string name="comic_title">Comic Title</string>
+    <string name="issue_number">Issue Number</string>
+    <string name="publisher">Publisher</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="year">Year</string>
+    <string name="delete">delete</string>
+    <string name="comic_picture">comic picture</string>
+</resources>
